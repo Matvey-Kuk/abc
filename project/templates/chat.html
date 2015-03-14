@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html" />
+    <meta name="author" content="Sasha_des" />
+    <script type="text/javascript" src="js/jquery.v1.11.0.min.js"></script>
+    <title>Chat</title>
+</head>
+<style type="text/css">
+    body {
+        background:#fafafa !important;
+        width:100%; height:100%; margin:0;
+    }
+    #box {
+        width:80%;
+        height:auto;
+        display:block;
+        background:#fff;
+        border:1px solid #eee;
+        margin:2% auto;
+    }
+
+    #chatForm {
+        display:block;
+        width:96%;
+        height:100px;
+        margin:20px 0 0px 20px;
+    }
+    #chatForm > #textInp {
+        width:98%;
+        background:#fff;
+        color:#333;
+        border:1px solid #ddd;
+        padding:1%;
+        margin:0 0 10px 0;
+    }
+    #chatForm > #btnInp {
+        display:block;
+        width:100%;
+        height:25px;
+        font: normal normal 400 14px/18px "Segoe UI";
+        color:#fff;
+        padding-top:0px;
+        background:#f60;
+        border:1px solid #f60;
+        border-radius:2px;
+        outline:none;
+        float:right;
+        margin-right:-1px;
+    }
+    #chatForm > #btnInp:hover {
+        background:#f50; border-color:#f50;
+        cursor:pointer;
+    }
+    #chatList {
+        padding-top:20px;
+        width:100%;
+        height:auto;
+        display:block;
+        margin:0 0 0 20px;
+    }
+    .chatComm {
+        width:96%;
+        height:auto;
+        display:block;
+        margin:0;
+        position:relative;
+    }
+    .chatComm > img {
+        width:50px;
+        height:50px;
+        border-radius: 25px;
+        background:#777;
+    }
+    .chatComm > span:nth-child(2) {
+        display:block;
+        font: normal normal 400 14px/18px "Segoe UI";
+        color:#477bea;
+        position:absolute;
+        top:0; left:60px;
+    }
+    .chatComm > span:nth-child(3) {
+        display:block;
+        width:300px;
+        text-align:right;
+        font: normal normal 400 12px/18px "Segoe UI";
+        color:#999;
+        position:absolute;
+        top:0; left:100%; margin-left:-300px;
+    }
+    .chatComm > p {
+        font: normal normal 400 14px/22px "Segoe UI";
+        color:#333;
+        position:relative;
+        top:-40px; left:60px;
+        padding-right:60px;
+        display:block; height:auto;
+        margin-bottom:-20px;
+    }
+
+</style>
+<body>
+<div id="box">
+
+    <div id="chatList">
+        <div class="chatComm">
+            <img src="img/1.jpg" />
+            <span>Иван Скоромолов</span>
+            <span>2015-12-05 12:06:18</span>
+            <p>Текст сообщения</p>
+        </div>
+    </div>
+
+    <form id="chatForm">
+        <input id="textInp" type="text" name="text">
+        <input id="btnInp" type="submit" value="Отправить" />
+    </form>
+</div>
+<script type="text/javascript">
+    весь jQuery код будет здесь
+</script>
+</body>
+</html>
