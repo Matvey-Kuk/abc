@@ -110,7 +110,7 @@ def chat(request):
     try:
         lead = Lead.objects.get(deviceId=request.GET.get('user_id'))
         messages = Message.objects.filter(
-            Q(to_lead__deviceId=request.POST.get('user_id')) | Q(from_lead__deviceId=request.POST.get('user_id')), id__gt=request.POST.get('last_message_id')
+            Q(to_lead__deviceId=request.GET.get('user_id')) | Q(from_lead__deviceId=request.GET.get('user_id'))
         )
         if len(messages) == 0:
             admin = Lead.objects.get(is_admin=True)

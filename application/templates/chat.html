@@ -5,6 +5,7 @@
     <meta http-equiv="content-type" content="text/html" />
     <meta name="viewport" content="width=device-width, height=device-height,  initial-scale=1.0, user-scalable=no;user-scalable=0;"/>
     <script src="/static/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/static/bower_components/ionsound/js/ion.sound.js"></script>
     <script type="text/javascript" src="http://mediaplayer.yahoo.com/js"></script>
     <title>Chat</title>
 </head>
@@ -123,7 +124,6 @@
 
 </style>
 <body>
-<a id="beep" href="song.mp3">Play Song</a>
 <div id="adminside" style="display: none;">
 
 </div>
@@ -234,6 +234,8 @@
                         $("#adminside").css("top", $(window).scrollTop() + 10);
                     });
 
+                    var new_messages_amount = 0;
+
                     var getNewContacts = function(){
                         $.ajax({
                             type: "POST",
@@ -249,6 +251,20 @@
                                 if(e){
                                     $("#adminside").empty();
                                     var contacts = JSON.parse(e);
+
+                                    var new_messages_amount_ = 0;
+                                    for(contact_id in contacts){
+                                        if(contacts[contact_id].new_message){
+                                            new_messages_amount_ += 1;
+                                        }
+                                    }
+
+                                    if(new_messages_amount_ > new_messages_amount){
+                                        ion.sound.play("beer_can_opening");
+                                    }
+
+                                    new_messages_amount = new_messages_amount_;
+
                                     for (contact_id in contacts) {
                                         var style = "";
                                         if(contacts[contact_id].new_message){
@@ -260,6 +276,17 @@
                             }
                         }).responseText;
                     };
+
+                    ion.sound({
+                        sounds: [
+                            {name: "beer_can_opening"}
+                        ],
+
+                        path: "static/sounds/",
+                        preload: true,
+                        multiplay: true,
+                        volume: 3
+                    });
 
                     var reloadAdmin = function(){
                         getNewContacts();
