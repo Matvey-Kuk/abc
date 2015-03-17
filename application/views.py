@@ -18,6 +18,18 @@ def index(request):
         lead = Lead()
         lead.deviceId = request.GET.get('user_id')
         lead.save()
+        message = Message()
+        admin = Lead.objects.get(is_admin=True)
+        message.from_lead = admin
+        message.to_lead = lead
+        message.body = "Привет, друг! Меня зовут Антон и я с моей командой создал это приложение. Пока что мы не совсем закончили и очень не хотим тебя расстраивать чем-то неидеальным =)"
+        message.save()
+
+        message = Message()
+        message.from_lead = admin
+        message.to_lead = lead
+        message.body = "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?"
+        message.save()
     return render(request, 'index.html',)
 
 
