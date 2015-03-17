@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html" />
+    <meta name="viewport" content="width=device-width, height=device-height,  initial-scale=1.0, user-scalable=no;user-scalable=0;"/>
     <script src="/static/bower_components/jquery/dist/jquery.js"></script>
     <title>Chat</title>
 </head>
@@ -74,7 +75,7 @@
     }
     .chatComm > span:nth-child(2) {
         display:block;
-{#        font: normal normal 400 14px/18px "Segoe UI";#}
+    {#        font: normal normal 400 14px/18px "Segoe UI";#}
         color:#477bea;
         position:absolute;
         top:0; left:60px;
@@ -93,8 +94,37 @@
         margin-bottom:20px;
     }
 
+    #adminside {
+        position: absolute;
+        width: 10%;
+        top:0;
+        left: 0;
+        height: 90%;
+        background: #ececec;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    .contactItem {
+        width: 100%;
+        height: 40px;
+        background: #004600;
+        margin-bottom: 10px;
+        padding: 10px;
+        color: #ffffff;
+    }
+
+    a:hover, a:visited, a:link, a:active
+    {
+        text-decoration: none;
+    }
+
 </style>
 <body>
+<div id="adminside" style="display: none;">
+
+</div>
+
 <div id="box">
 
     <div id="chatList">
@@ -106,9 +136,6 @@
     </form>
 </div>
 <script type="text/javascript">
-
-    {#    $('<div class="chatComm" id="1msg"><img src="/static/img/ad516503a11cd5ca435acc9bb6523536.png" /><span>asd</span><p>123</p></div>')#}
-    {#            .appendTo('#chatList');#}
 
     function getUrlParameter(sParam)
     {
@@ -125,11 +152,11 @@
     }
 
     var user_id = getUrlParameter('user_id');
+    var admin_key = getUrlParameter('admin_key');
 
     var last_message_id = 0;
 
     var getNewMessages = function(){
-        console.log('got new messages');
         $.ajax({
             type: "POST",
             url:"get-messages/",
@@ -147,9 +174,8 @@
                             last_message_id = messages[message_id].pk;
                         }
                         var avatar = "/static/img/ad516503a11cd5ca435acc9bb6523536.png";
-                        var name = "Гость"
-                        console.log(messages[message_id].fields.from_admin=="true");
-                        if(messages[message_id].fields.from_admin){
+                        var name = "Гость";
+                        if(messages[message_id].fields.from_lead==1){
                             avatar = "/static/img/3871867230_5f81321baab6ecdbec1a_192.jpg";
                             name = "Антон, CEO"
                         }
@@ -174,7 +200,8 @@
                 url:"send-message/",
                 data:({
                     text:text,
-                    user_id:user_id
+                    user_id:user_id,
+                    admin_key: admin_key
                 }),
                 dataType:"html",
                 async:true,
@@ -196,6 +223,48 @@
     $(document).ready(
             function(){
                 reloadChat();
+
+                if(admin_key){
+                    $("#adminside").show();
+
+                    $(window).scroll(function() {
+                        $("#adminside").css("top", $(window).scrollTop() + 10);
+                    });
+
+                    var getNewContacts = function(){
+                        $.ajax({
+                            type: "POST",
+                            url:"get-contact-list/",
+                            data:({
+                                last_message_id:last_message_id,
+                                user_id:user_id,
+                                admin_key: admin_key
+                            }),
+                            dataType:"html",
+                            async:true,
+                            success:function(e){
+                                if(e){
+                                    $("#adminside").empty();
+                                    var contacts = JSON.parse(e);
+                                    for (contact_id in contacts) {
+                                        var style = "";
+                                        if(contacts[contact_id].new_message){
+                                            style="background:#460000;";
+                                        }
+                                        $('<a href="chat?user_id=' + contacts[contact_id].lead_deviceId + '&admin_key=' + admin_key + '"><div style="' + style + '" class="contactItem">' + contacts[contact_id].latest_message + '</div></a>').appendTo('#adminside');
+                                    }
+                                }
+                            }
+                        }).responseText;
+                    };
+
+                    var reloadAdmin = function(){
+                        getNewContacts();
+                        setTimeout(reloadAdmin, 5000);
+                    };
+
+                    reloadAdmin();
+                }
             }
     )
 </script>

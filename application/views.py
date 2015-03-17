@@ -5,6 +5,8 @@ from django.http import HttpResponse
 import json
 from django.core import serializers
 from django.http import HttpResponseRedirect
+from django.db.models import Q
+from operator import itemgetter
 
 
 @csrf_exempt
@@ -21,25 +23,72 @@ def index(request):
 
 @csrf_exempt
 def get_messages(request):
-    messages = Message.objects.filter(lead__deviceId=request.POST.get('user_id'), id__gt=request.POST.get('last_message_id'))
-    new_messages = Message.objects.filter(lead__deviceId=request.POST.get('user_id'), hasBeenRead=False)
-    for new_message in new_messages:
-        new_message.hasBeenRead = True
+    messages = Message.objects.filter(
+        Q(to_lead__deviceId=request.POST.get('user_id')) | Q(from_lead__deviceId=request.POST.get('user_id')), id__gt=request.POST.get('last_message_id')
+    )
+    unread_messages_to_me = Message.objects.filter(to_lead__deviceId=request.POST.get('user_id'), has_been_read_by_receiver=False)
+    for new_message in unread_messages_to_me:
+        new_message.has_been_read_by_receiver = True
         new_message.save()
+
     return HttpResponse(serializers.serialize("json", messages), content_type="application/json")
+
+
+def check_admin(request):
+    return request.POST.get('admin_key') == "sdfjkhsg5dkfh4jgasd5kjhfgs435aLUF"
 
 
 @csrf_exempt
 def send_message(request):
     lead = Lead.objects.get(deviceId=request.POST.get('user_id'))
+    admin = Lead.objects.get(is_admin=True)
     if not lead is None:
         message = Message()
         message.lead = lead
-        message.from_admin = False
+        print(request.POST.get('admin_key'))
+        if check_admin(request):
+            message.from_lead = admin
+            message.to_lead = lead
+        else:
+            message.from_lead = lead
+            message.to_lead = admin
         message.body = request.POST.get('text')
         message.save()
     return HttpResponse("ok")
 
 
+@csrf_exempt
+def get_contact_list(request):
+    sorted_contacts = []
+    contacts = []
+    admin = Lead.objects.get(is_admin=True)
+    if check_admin(request):
+        leads = Lead.objects.filter(is_admin=False).all()
+        for lead in leads:
+            latest_message = Message.objects.filter(
+                Q(to_lead=lead) |
+                Q(from_lead=lead)
+            ).latest('pk')
+
+            new_message = False
+
+            if(latest_message.to_lead == admin and not latest_message.has_been_read_by_receiver):
+                new_message = True
+
+            contacts.append({
+                'lead_deviceId': lead.deviceId,
+                'latest_message': latest_message.body,
+                'new_message': new_message
+            })
+
+            sorted_contacts = sorted(contacts, key=itemgetter('new_message'))
+            sorted_contacts = sorted_contacts[::-1]
+    return HttpResponse(json.dumps(sorted_contacts), content_type="application/json")
+
+
 def chat(request):
+    try:
+        lead = Lead.objects.get(deviceId=request.GET.get('user_id'))
+    except Exception:
+        return HttpResponseRedirect("?user_id=" + request.GET.get('user_id'))
     return render(request, 'chat.html')

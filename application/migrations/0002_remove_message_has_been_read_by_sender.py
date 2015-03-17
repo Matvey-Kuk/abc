@@ -7,12 +7,12 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('application', '0004_message_body'),
+        ('application', '0001_initial'),
     ]
 
     operations = [
         migrations.RemoveField(
             model_name='message',
-            name='deviceId',
+            name='has_been_read_by_sender',
         ),
     ]

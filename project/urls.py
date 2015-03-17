@@ -12,4 +12,5 @@ urlpatterns = patterns('',
 
     url(r'^get-messages/$', 'application.views.get_messages'),
     url(r'^send-message/$', 'application.views.send_message'),
+    url(r'^get-contact-list/$', 'application.views.get_contact_list'),
 )
