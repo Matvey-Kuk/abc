@@ -20,7 +20,6 @@ class DelayedMessage(threading.Thread):
         self.body = body
         self.timeout = timeout
 
-
     def run(self):
         time.sleep(self.timeout)
         message = Message()
@@ -52,7 +51,14 @@ def index(request):
             admin,
             lead,
             "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?",
-            20
+            10
+        )
+
+        new_message_thread = DelayedMessage(
+            admin,
+            lead,
+            "Если, конечно, есть немножко времени)",
+            15
         )
         new_message_thread.start()
 
