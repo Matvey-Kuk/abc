@@ -13,7 +13,7 @@ from operator import itemgetter
 def index(request):
     try:
         lead = Lead.objects.get(deviceId=request.GET.get('user_id'))
-        # return HttpResponseRedirect("chat?user_id=" + request.GET.get('user_id'))
+        return HttpResponseRedirect("chat?user_id=" + request.GET.get('user_id'))
     except Exception:
         lead = Lead()
         lead.deviceId = request.GET.get('user_id')
