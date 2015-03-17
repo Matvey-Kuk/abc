@@ -47,20 +47,21 @@ def index(request):
         message.body = "Привет, друг! Меня зовут Антон и я с моей командой создал это приложение. Пока что мы не совсем закончили и очень не хотим тебя расстраивать чем-то неидеальным =)"
         message.save()
 
-        new_message_thread = DelayedMessage(
+        new_message_thread1 = DelayedMessage(
             admin,
             lead,
             "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?",
             10
         )
 
-        new_message_thread = DelayedMessage(
+        new_message_thread2 = DelayedMessage(
             admin,
             lead,
             "Если, конечно, есть немножко времени)",
             15
         )
-        new_message_thread.start()
+        new_message_thread1.start()
+        new_message_thread2.start()
 
     return render(request, 'index.html',)
 
