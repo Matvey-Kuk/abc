@@ -7,6 +7,27 @@ from django.core import serializers
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from operator import itemgetter
+import threading
+import time
+
+
+class DelayedMessage(threading.Thread):
+
+    def __init__(self,from_lead,to_lead, body, timeout):
+        super(DelayedMessage, self).__init__()
+        self.from_lead = from_lead
+        self.to_lead = to_lead
+        self.body = body
+        self.timeout = timeout
+
+
+    def run(self):
+        time.sleep(self.timeout)
+        message = Message()
+        message.from_lead = self.from_lead
+        message.to_lead = self.to_lead
+        message.body = self.body
+        message.save()
 
 
 @csrf_exempt
@@ -18,18 +39,23 @@ def index(request):
         lead = Lead()
         lead.deviceId = request.GET.get('user_id')
         lead.save()
-        message = Message()
+
         admin = Lead.objects.get(is_admin=True)
+
+        message = Message()
         message.from_lead = admin
         message.to_lead = lead
         message.body = "Привет, друг! Меня зовут Антон и я с моей командой создал это приложение. Пока что мы не совсем закончили и очень не хотим тебя расстраивать чем-то неидеальным =)"
         message.save()
 
-        message = Message()
-        message.from_lead = admin
-        message.to_lead = lead
-        message.body = "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?"
-        message.save()
+        new_message_thread = DelayedMessage(
+            admin,
+            lead,
+            "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?",
+            20
+        )
+        new_message_thread.start()
+
     return render(request, 'index.html',)
 
 
