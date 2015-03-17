@@ -3,8 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html" />
-    <meta name="author" content="Sasha_des" />
-    <script type="text/javascript" src="js/jquery.v1.11.0.min.js"></script>
+    <script src="/static/bower_components/jquery/dist/jquery.js"></script>
     <title>Chat</title>
 </head>
 <style type="text/css">
@@ -25,7 +24,7 @@
         display:block;
         width:96%;
         height:100px;
-        margin:20px 0 0px 20px;
+        margin:20px 0 0 20px;
     }
     #chatForm > #textInp {
         width:98%;
@@ -41,7 +40,7 @@
         height:25px;
         font: normal normal 400 14px/18px "Segoe UI";
         color:#fff;
-        padding-top:0px;
+        padding-top:0;
         background:#f60;
         border:1px solid #f60;
         border-radius:2px;
@@ -118,7 +117,33 @@
     </form>
 </div>
 <script type="text/javascript">
-    весь jQuery код будет здесь
+    $('#chatForm').submit(function(e) {
+        e.preventDefault();
+        var text = $.trim($(this).children('input').val());
+        console.log(text);
+            if(text){
+                $.ajax({
+                    type: "POST",
+                    url:"send-message?user_id=",
+                    data:({
+                        text:text,
+                        type:'add'
+                    }),
+                    dataType:"html",
+                    async:false,
+                    success:function(e){
+                        if(e){
+                            e = e.split('|');
+                            $('<div class="chatComm" id="'+e[0]
+                                +'msg"><img src="'+set.avatar+'" /><span>'
+                                +set.name+'</span><span>'+e[1]+'</span><p>'
+                                +text+'</p></div>').appendTo('#chatList');
+                            $('#chatForm').children('textarea').val('');
+                        }
+                    }
+                }).responseText;
+            }
+    });
 </script>
 </body>
 </html>

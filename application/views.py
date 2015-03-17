@@ -20,3 +20,7 @@ def index(request):
 def get_messages(request):
     messages = Message.objects.filter(lead=request.GET.get('user_id'))
     return HttpResponse(json.dumps(messages), content_type="application/json")
+
+
+def chat(request):
+    return render(request, 'chat.html')
