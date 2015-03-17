@@ -83,9 +83,8 @@ USE_TZ = True
 
 
 TEMPLATE_DIRS = (
-    'templates/',
+    BASE_DIR + '/templates/',
 )
-
 
 STATIC_URL = '/static/'
 
