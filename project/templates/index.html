@@ -57,13 +57,34 @@
          <button style="position: absolute; right: 10px; bottom: 10px " class="btn btn-danger next-button">Далее...</button>
      </li>
      <li style="background: url(/static/img/2.png) no-repeat; background-size: cover;  background-position: top;">
-         <button style="position: absolute; right: 10px; bottom: 10px " class="btn btn-danger next-button">Но пока мы можем предложить кое что интересное...</button>
+         <button id="toChat" style="position: absolute; right: 10px; bottom: 10px " class="btn btn-danger next-button">Далее...</button>
      </li>
 </ul>
 
 <script src="/static/bower_components/jquery/dist/jquery.js"></script>
 <script src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script>
+    function getUrlParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }
+
+    var user_id = getUrlParameter('user_id');
+
+
+    $('#toChat').click(function(e) {
+        window.location.replace("chat?user_id=" + user_id);
+    });
+
     jQuery(window).load(function() {
         var mySlider = function() {
             var slides;
@@ -72,15 +93,12 @@
             var i;
 
             function run() {
-                console.log("as");
                 $(slides[i]).fadeOut(20);
                 i++;
                 if (i >= amount) i = 0;
                 $(slides[i]).fadeIn(20);
 
                 cnt.text(i+1+' / '+amount);
-
-                setTimeout(run, interval);
             }
 
             slides = $('#slider').children();

@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^chat$', 'application.views.chat'),
 
     url(r'^get-messages/$', 'application.views.get_messages'),
+    url(r'^send-message/$', 'application.views.send_message'),
 )

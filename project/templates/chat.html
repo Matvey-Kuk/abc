@@ -22,9 +22,9 @@
 
     #chatForm {
         display:block;
-        width:96%;
+        width:92%;
         height:100px;
-        margin:20px 0 0 20px;
+        margin:4% 0 0 4%;
     }
     #chatForm > #textInp {
         width:98%;
@@ -74,28 +74,23 @@
     }
     .chatComm > span:nth-child(2) {
         display:block;
-        font: normal normal 400 14px/18px "Segoe UI";
+{#        font: normal normal 400 14px/18px "Segoe UI";#}
         color:#477bea;
         position:absolute;
         top:0; left:60px;
     }
-    .chatComm > span:nth-child(3) {
-        display:block;
-        width:300px;
-        text-align:right;
-        font: normal normal 400 12px/18px "Segoe UI";
-        color:#999;
-        position:absolute;
-        top:0; left:100%; margin-left:-300px;
-    }
+
     .chatComm > p {
         font: normal normal 400 14px/22px "Segoe UI";
         color:#333;
-        position:relative;
-        top:-40px; left:60px;
-        padding-right:60px;
+        position: relative;
+        left:60px;
+        max-width: 70%;
+        overflow: hidden;
+        word-wrap: break-word;
         display:block; height:auto;
-        margin-bottom:-20px;
+        margin-top: -35px;
+        margin-bottom:20px;
     }
 
 </style>
@@ -103,47 +98,106 @@
 <div id="box">
 
     <div id="chatList">
-        <div class="chatComm">
-            <img src="img/1.jpg" />
-            <span>Иван Скоромолов</span>
-            <span>2015-12-05 12:06:18</span>
-            <p>Текст сообщения</p>
-        </div>
     </div>
 
     <form id="chatForm">
-        <input id="textInp" type="text" name="text">
+        <input autocomplete="off" id="textInp" type="text" name="text">
         <input id="btnInp" type="submit" value="Отправить" />
     </form>
 </div>
 <script type="text/javascript">
+
+    {#    $('<div class="chatComm" id="1msg"><img src="/static/img/ad516503a11cd5ca435acc9bb6523536.png" /><span>asd</span><p>123</p></div>')#}
+    {#            .appendTo('#chatList');#}
+
+    function getUrlParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }
+
+    var user_id = getUrlParameter('user_id');
+
+    var last_message_id = 0;
+
+    var getNewMessages = function(){
+        console.log('got new messages');
+        $.ajax({
+            type: "POST",
+            url:"get-messages/",
+            data:({
+                last_message_id:last_message_id,
+                user_id:user_id
+            }),
+            dataType:"html",
+            async:true,
+            success:function(e){
+                if(e){
+                    var messages = JSON.parse(e);
+                    for (message_id in messages){
+                        if(messages[message_id].pk > last_message_id){
+                            last_message_id = messages[message_id].pk;
+                        }
+                        var avatar = "/static/img/ad516503a11cd5ca435acc9bb6523536.png";
+                        var name = "Гость"
+                        console.log(messages[message_id].fields.from_admin=="true");
+                        if(messages[message_id].fields.from_admin){
+                            avatar = "/static/img/3871867230_5f81321baab6ecdbec1a_192.jpg";
+                            name = "Антон, CEO"
+                        }
+                        $('<div class="chatComm" id="1msg"><img src=' + avatar + ' /><span>' + name + '</span><p>' + messages[message_id].fields.body + '</p></div>')
+                                .appendTo('#chatList');
+                    }
+                    if(messages.length > 0){
+                        $("html, body").animate({ scrollTop: $(document).height()-$(window).height() }, 0);
+                        $( "#textInp" ).focus();
+                    }
+                }
+            }
+        }).responseText;
+    };
+
     $('#chatForm').submit(function(e) {
         e.preventDefault();
         var text = $.trim($(this).children('input').val());
-        console.log(text);
-            if(text){
-                $.ajax({
-                    type: "POST",
-                    url:"send-message?user_id=",
-                    data:({
-                        text:text,
-                        type:'add'
-                    }),
-                    dataType:"html",
-                    async:false,
-                    success:function(e){
-                        if(e){
-                            e = e.split('|');
-                            $('<div class="chatComm" id="'+e[0]
-                                +'msg"><img src="'+set.avatar+'" /><span>'
-                                +set.name+'</span><span>'+e[1]+'</span><p>'
-                                +text+'</p></div>').appendTo('#chatList');
-                            $('#chatForm').children('textarea').val('');
-                        }
+        if(text){
+            $.ajax({
+                type: "POST",
+                url:"send-message/",
+                data:({
+                    text:text,
+                    user_id:user_id
+                }),
+                dataType:"html",
+                async:true,
+                success:function(e){
+                    if(e == "ok"){
+                        $('#chatForm').children('input:first').val('');
+                        getNewMessages();
                     }
-                }).responseText;
-            }
+                }
+            }).responseText;
+        }
     });
+
+    var reloadChat = function(){
+        getNewMessages();
+        setTimeout(reloadChat, 5000);
+    };
+
+    $(document).ready(
+            function(){
+                reloadChat();
+            }
+    )
 </script>
 </body>
 </html>
