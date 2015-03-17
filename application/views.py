@@ -38,31 +38,6 @@ def index(request):
         lead = Lead()
         lead.deviceId = request.GET.get('user_id')
         lead.save()
-
-        admin = Lead.objects.get(is_admin=True)
-
-        message = Message()
-        message.from_lead = admin
-        message.to_lead = lead
-        message.body = "Привет, друг! Меня зовут Антон и я с моей командой создал это приложение. Пока что мы не совсем закончили и очень не хотим тебя расстраивать чем-то неидеальным =)"
-        message.save()
-
-        new_message_thread1 = DelayedMessage(
-            admin,
-            lead,
-            "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?",
-            10
-        )
-
-        new_message_thread2 = DelayedMessage(
-            admin,
-            lead,
-            "Если, конечно, есть немножко времени)",
-            15
-        )
-        new_message_thread1.start()
-        new_message_thread2.start()
-
     return render(request, 'index.html',)
 
 
@@ -134,6 +109,33 @@ def get_contact_list(request):
 def chat(request):
     try:
         lead = Lead.objects.get(deviceId=request.GET.get('user_id'))
+        messages = Message.objects.filter(
+            Q(to_lead__deviceId=request.POST.get('user_id')) | Q(from_lead__deviceId=request.POST.get('user_id')), id__gt=request.POST.get('last_message_id')
+        )
+        if len(messages) == 0:
+            admin = Lead.objects.get(is_admin=True)
+
+            message = Message()
+            message.from_lead = admin
+            message.to_lead = lead
+            message.body = "Привет, друг! Меня зовут Антон и я с моей командой создал это приложение. Пока что мы не совсем закончили и очень не хотим тебя расстраивать чем-то неидеальным =)"
+            message.save()
+
+            new_message_thread1 = DelayedMessage(
+                admin,
+                lead,
+                "Самое важное для меня -  это сделать не просто крутую программу, а нечто большее... Можешь рассказать, почему именно оно тебя заинтересовало и как ты хотел его использовать?",
+                10
+            )
+
+            new_message_thread2 = DelayedMessage(
+                admin,
+                lead,
+                "Если, конечно, есть немножко времени)",
+                15
+            )
+            new_message_thread1.start()
+            new_message_thread2.start()
     except Exception:
         return HttpResponseRedirect("?user_id=" + request.GET.get('user_id'))
     return render(request, 'chat.html')
