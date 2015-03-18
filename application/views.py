@@ -85,25 +85,25 @@ def get_contact_list(request):
     if check_admin(request):
         leads = Lead.objects.filter(is_admin=False).all()
         for lead in leads:
+            new_message = False
+            message_body = ''
             try:
                 latest_message = Message.objects.filter(
                     Q(to_lead=lead) |
                     Q(from_lead=lead)
                 ).latest('pk')
+
+                if(latest_message.to_lead == admin and not latest_message.has_been_read_by_receiver):
+                    new_message = True
+
+                message_body = latest_message.body
             except Exception:
-                latest_message = {}
-                latest_message.to_lead = None
-                latest_message.has_been_read_by_receiver = None
-                latest_message.body = None
+                pass
 
-            new_message = False
-
-            if(latest_message.to_lead == admin and not latest_message.has_been_read_by_receiver):
-                new_message = True
 
             contacts.append({
                 'lead_deviceId': lead.deviceId,
-                'latest_message': latest_message.body,
+                'latest_message': message_body,
                 'new_message': new_message
             })
 
